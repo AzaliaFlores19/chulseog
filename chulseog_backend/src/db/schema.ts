@@ -1,7 +1,15 @@
 import { timeStamp } from "console";
-import { relations, sql} from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { check } from "drizzle-orm/gel-core";
-import { uuid, integer, pgTable, text, timestamp, boolean, pgEnum} from "drizzle-orm/pg-core";
+import {
+  uuid,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 
 export const personTable = pgTable("persona", {
   id: uuid().primaryKey().defaultRandom(), // todo: ver si esta bien implementado el uuid como pk
@@ -25,7 +33,10 @@ export const universityTable = pgTable("universidad", {
   icono: text(),
 });
 
-export const tipo_usuario = pgEnum('tipo_Usuario', ['Administrador', 'Usuario']);
+export const tipo_usuario = pgEnum("tipo_Usuario", [
+  "Administrador",
+  "Usuario",
+]);
 
 export const user_universityTable = pgTable("usuario_universidad", {
   id: uuid().primaryKey().defaultRandom(),
@@ -40,12 +51,14 @@ export const classTable = pgTable("clase", {
   id_universidad: uuid().notNull(), //falta referencia universidad id
 });
 
-export const sectionTable = pgTable("seccion", {
-  id: uuid().primaryKey().defaultRandom(),
-  id_clase: uuid().notNull(), //falta referencia clase id
-  capacidad: integer().notNull(),
-  modalidad: text().notNull(),
-  hora_inicio: timestamp("hora_inicio", { withTimezone: true }).notNull(),
+export const sectionTable = pgTable(
+  "seccion",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    id_clase: uuid().notNull(), //falta referencia clase id
+    capacidad: integer().notNull(),
+    modalidad: text().notNull(),
+    hora_inicio: timestamp("hora_inicio", { withTimezone: true }).notNull(),
     hora_fin: timestamp("hora_fin", { withTimezone: true }).notNull(),
     periodo: text().notNull(),
     activa: boolean().notNull().default(true),
@@ -55,11 +68,16 @@ export const sectionTable = pgTable("seccion", {
   })
 );
 
-export const tipo_matricula = pgEnum('tipo_Matricula', ['Estudiante', 'Docente']);
+export const tipo_matricula = pgEnum("tipo_Matricula", [
+  "Estudiante",
+  "Docente",
+]);
 
 export const enrollmentTable = pgTable("matricula", {
   id: uuid().primaryKey().defaultRandom(),
-  fecha_matricula: timestamp("fecha_matricula", { withTimezone: true }).notNull().defaultNow(),
+  fecha_matricula: timestamp("fecha_matricula", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   id_usuario: uuid().notNull(), //falta referencia usuario id
   id_seccion: uuid().notNull(), //falta referencia seccion id
   tipo: tipo_matricula("tipo").notNull(),
@@ -75,13 +93,22 @@ export const atendanceTable = pgTable("asistencia", {
 export const announcementTable = pgTable("anuncio", {
   id: uuid().primaryKey().defaultRandom(),
   id_seccion: uuid().notNull(), //falta referencia seccion id
-  fecha_publicacion: timestamp("fecha_publicacion", { withTimezone: true }).notNull().defaultNow(),
+  fecha_publicacion: timestamp("fecha_publicacion", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   mensaje: text().notNull(),
 });
-  
 
-// export const usersRelations = relations(userTable, ({ one }) => ({
-//   persona: one(personTable, {
-//     references: [personTable.id],
-//   }),
-// }));
+export const usersRelations = relations(userTable, ({ one }) => ({
+  persona: one(personTable, {
+    fields: [userTable.id_persona],
+    references: [personTable.id],
+  }),
+}));
+
+export const personRelations = relations(personTable, ({ one }) => ({
+  usuario: one(userTable, {
+    fields: [personTable.id],
+    references: [userTable.id_persona],
+  }),
+}));
