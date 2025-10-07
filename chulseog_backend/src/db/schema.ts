@@ -1,6 +1,4 @@
-import { timeStamp } from "console";
 import { relations, sql } from "drizzle-orm";
-import { check } from "drizzle-orm/gel-core";
 import {
   uuid,
   integer,
@@ -99,11 +97,13 @@ export const announcementTable = pgTable("anuncio", {
   mensaje: text().notNull(),
 });
 
-export const usersRelations = relations(userTable, ({ one }) => ({
+export const usersRelations = relations(userTable, ({ one, many }) => ({
   persona: one(personTable, {
     fields: [userTable.id_persona],
     references: [personTable.id],
   }),
+  universidades: many(user_universityTable),
+  matriculas: many(enrollmentTable),
 }));
 
 export const personRelations = relations(personTable, ({ one }) => ({
@@ -112,3 +112,71 @@ export const personRelations = relations(personTable, ({ one }) => ({
     references: [userTable.id_persona],
   }),
 }));
+
+export const universityRelations = relations(universityTable, ({ many }) => ({
+  usuarios: many(user_universityTable),
+  clases: many(classTable),
+}));
+
+export const user_universityRelations = relations(
+  user_universityTable,
+  ({ one }) => ({
+    usuario: one(userTable, {
+      fields: [user_universityTable.id_usuario],
+      references: [userTable.id],
+    }),
+    universidad: one(universityTable, {
+      fields: [user_universityTable.id_universidad],
+      references: [universityTable.id],
+    }),
+  })
+);
+
+export const classRelations = relations(classTable, ({ one, many }) => ({
+  universidad: one(universityTable, {
+    fields: [classTable.id_universidad],
+    references: [universityTable.id],
+  }),
+  secciones: many(sectionTable),
+}));
+
+export const sectionRelations = relations(sectionTable, ({ one, many }) => ({
+  clase: one(classTable, {
+    fields: [sectionTable.id_clase],
+    references: [classTable.id],
+  }),
+  matriculas: many(enrollmentTable),
+  anuncios: many(announcementTable),
+}));
+
+export const enrollmentRelations = relations(
+  enrollmentTable,
+  ({ one, many }) => ({
+    usuario: one(userTable, {
+      fields: [enrollmentTable.id_usuario],
+      references: [userTable.id],
+    }),
+    seccion: one(sectionTable, {
+      fields: [enrollmentTable.id_seccion],
+      references: [sectionTable.id],
+    }),
+    asistencias: many(atendanceTable),
+  })
+);
+
+export const atendanceRelations = relations(atendanceTable, ({ one }) => ({
+  matricula: one(enrollmentTable, {
+    fields: [atendanceTable.id_matricula],
+    references: [enrollmentTable.id],
+  }),
+}));
+
+export const announcementRelations = relations(
+  announcementTable,
+  ({ one }) => ({
+    seccion: one(sectionTable, {
+      fields: [announcementTable.id_seccion],
+      references: [sectionTable.id],
+    }),
+  })
+);
