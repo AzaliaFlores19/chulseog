@@ -19,8 +19,10 @@
    },
    "devDependencies": {
       "@types/express": "^5.0.3",
+      "@types/express-serve-static-core": "^5.1.0",
       "@types/node": "^24.0.14",
       "@types/pg": "^8.15.5",
+      "@types/serve-static": "^1.15.9",
       "drizzle-kit": "^0.31.5",
       "ts-node": "^10.9.2",
       "tsx": "^4.20.6",
